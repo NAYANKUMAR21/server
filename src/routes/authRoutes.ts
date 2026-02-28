@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { signup, login } from "../controllers/authController";
+import { signup, login, getAllUsers } from "../controllers/authController";
 import { authMiddleware } from "../utils/auth";
 import { query } from "../config/db";
 import { logger } from "../utils/logger";
@@ -35,7 +35,8 @@ export const authRoutes = new Elysia({ prefix: "/api" })
     }
 
     return { success: true, data: rows[0] };
-  });
+  })
+  .get("/all-users", ({ request }) => getAllUsers(request));
 
 export const mainRouter = new Elysia()
   .use(cors())

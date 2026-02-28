@@ -247,3 +247,8 @@ export async function login(req: Request): Promise<Response> {
     );
   }
 }
+
+export async function getAllUsers(req: Request) {
+  const users = await query("SELECT * FROM users");
+  return users;
+}
