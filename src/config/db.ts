@@ -7,7 +7,7 @@ const poolConfig: mysql.PoolOptions = {
   port: 3306,
   user: "nayan",
   password: "nayankumar",
-  database: "auth_db",
+  database: "cicd",
 
   // Concurrency & performance tuning
   connectionLimit: 20, // Max parallel connections
