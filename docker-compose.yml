@@ -1,0 +1,16 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=34.227.223.135
+      - DB_PORT=3306
+      - DB_USER=nayan
+      - DB_PASSWORD=nayankumar
+      - DB_NAME=auth_db
+      - JWT_SECRET=super-secret-key-change-this-in-production
+    restart: always
