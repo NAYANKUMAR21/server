@@ -1,42 +1,10 @@
-import { serve } from "bun";
-import { router } from "./routes/authRoutes";
+import { mainRouter } from "./routes/authRoutes";
 import { logger } from "./utils/logger";
 import { closePool } from "./config/db";
 
 const PORT = parseInt(process.env.PORT || "9000");
 
-const server = serve({
-  port: PORT,
-
-  // Bun's built-in request handling with concurrency
-  async fetch(req: Request): Promise<Response> {
-    try {
-      return await router(req);
-    } catch (err) {
-      logger.error("Unhandled server error", err);
-      // Ensure we always return a valid response even on crash
-      try {
-        return Response.json(
-          {
-            success: false,
-            message: "Internal server error",
-            error:
-              process.env.NODE_ENV === "development"
-                ? (err as Error).message
-                : undefined,
-          },
-          { status: 500 },
-        );
-      } catch {
-        return new Response("Internal Server Error", { status: 500 });
-      }
-    }
-  },
-
-  // Bun uses worker threads under the hood for I/O
-  // idleTimeout ensures connections don't hang
-  idleTimeout: 30,
-});
+const server = mainRouter.listen(PORT);
 
 logger.info(`🚀 Server running on http://localhost:${PORT}`);
 logger.info(`🔧 Environment: ${process.env.NODE_ENV || "development"}`);
@@ -57,4 +25,4 @@ process.on("SIGTERM", async () => {
   process.exit(0);
 });
 
-export default server;
+// No default export to prevent Bun from starting a second server instance
