@@ -3,22 +3,22 @@ import { logger } from "../utils/logger";
 
 // Production-grade pool with concurrency limits
 const poolConfig: mysql.PoolOptions = {
-  host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "3306"),
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "password",
-  database: process.env.DB_NAME || "auth_db",
+  host: "34.227.223.135",
+  port: 3306,
+  user: "nayan",
+  password: "nayankumar",
+  database: "auth_db",
 
   // Concurrency & performance tuning
-  connectionLimit: parseInt(process.env.DB_POOL_SIZE || "20"), // Max parallel connections
-  queueLimit: 50,                // Max queued requests before error
-  waitForConnections: true,      // Queue requests instead of failing
-  connectTimeout: 10000,         // 10s connection timeout
+  connectionLimit: 20, // Max parallel connections
+  queueLimit: 50, // Max queued requests before error
+  waitForConnections: true, // Queue requests instead of failing
+  connectTimeout: 10000, // 10s connection timeout
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
 
   // Security
-  multipleStatements: false,     // Prevent SQL injection via stacking
+  multipleStatements: false, // Prevent SQL injection via stacking
   charset: "utf8mb4",
 };
 
@@ -27,7 +27,9 @@ let pool: mysql.Pool;
 export function getPool(): mysql.Pool {
   if (!pool) {
     pool = mysql.createPool(poolConfig);
-    logger.info(`MySQL pool created (max ${poolConfig.connectionLimit} connections)`);
+    logger.info(
+      `MySQL pool created (max ${poolConfig.connectionLimit} connections)`,
+    );
   }
   return pool;
 }
@@ -42,7 +44,7 @@ export async function closePool(): Promise<void> {
 // Execute a query with automatic connection release
 export async function query<T = unknown>(
   sql: string,
-  params?: unknown[]
+  params?: unknown[],
 ): Promise<T> {
   const connection = await getPool().getConnection();
   try {
@@ -55,17 +57,17 @@ export async function query<T = unknown>(
 
 // Execute multiple queries in parallel (concurrency)
 export async function queryParallel<T = unknown>(
-  queries: { sql: string; params?: unknown[] }[]
+  queries: { sql: string; params?: unknown[] }[],
 ): Promise<T[]> {
   const results = await Promise.all(
-    queries.map(({ sql, params }) => query<T>(sql, params))
+    queries.map(({ sql, params }) => query<T>(sql, params)),
   );
   return results;
 }
 
 // Transaction support
 export async function withTransaction<T>(
-  fn: (conn: mysql.PoolConnection) => Promise<T>
+  fn: (conn: mysql.PoolConnection) => Promise<T>,
 ): Promise<T> {
   const connection = await getPool().getConnection();
   await connection.beginTransaction();
