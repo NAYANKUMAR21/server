@@ -1,5 +1,5 @@
 
-FROM oven/bun:1.1-slim as base
+FROM oven/bun:1.2.4 as base
 WORKDIR /usr/src/app
 
 
