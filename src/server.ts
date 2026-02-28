@@ -13,11 +13,23 @@ const server = serve({
     try {
       return await router(req);
     } catch (err) {
-      logger.error("Unhandled error", err);
-      return Response.json(
-        { success: false, message: "Internal server error" },
-        { status: 500 },
-      );
+      logger.error("Unhandled server error", err);
+      // Ensure we always return a valid response even on crash
+      try {
+        return Response.json(
+          {
+            success: false,
+            message: "Internal server error",
+            error:
+              process.env.NODE_ENV === "development"
+                ? (err as Error).message
+                : undefined,
+          },
+          { status: 500 },
+        );
+      } catch {
+        return new Response("Internal Server Error", { status: 500 });
+      }
     }
   },
 

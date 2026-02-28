@@ -22,7 +22,11 @@ function corsHeaders(origin: string | null): HeadersInit {
 
 export async function router(req: Request): Promise<Response> {
   const start = Date.now();
-  const url = new URL(req.url);
+  // Provide a fallback base for robust parsing in all environments
+  const url = new URL(
+    req.url,
+    `http://${req.headers.get("host") || "localhost"}`,
+  );
   const method = req.method;
   const path = url.pathname;
   const origin = req.headers.get("origin");
@@ -33,12 +37,19 @@ export async function router(req: Request): Promise<Response> {
   }
 
   const addCors = (res: Response): Response => {
+    // Clone headers to avoid mutation issues
     const headers = new Headers(res.headers);
     Object.entries(corsHeaders(origin)).forEach(([k, v]) => headers.set(k, v));
     headers.set("X-Response-Time", `${Date.now() - start}ms`);
     headers.set("X-Content-Type-Options", "nosniff");
     headers.set("X-Frame-Options", "DENY");
-    return new Response(res.body, { status: res.status, headers });
+
+    // Return a new response with the same body and status but updated headers
+    return new Response(res.body, {
+      status: res.status,
+      statusText: res.statusText,
+      headers,
+    });
   };
 
   // ─── Routes ──────────────────────────────────────────────────────────────
